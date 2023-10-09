@@ -1,0 +1,117 @@
+<html>
+
+<head>
+  <title>Scanbot Web SDK Example</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+    integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous" />
+
+  <link rel="stylesheet" type="text/css" href="main.css" />
+  <link rel="stylesheet" type="text/css" href="js/lib/toastify.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+</head>
+
+<body>
+  <nav class="navbar navbar-dark" style="background-color: #c8193c">
+    <div class="navbar-brand mb-0 h3">
+      <span class="back-button"></span>Scanbot Web SDK
+    </div>
+  </nav>
+  <div class="flash"></div>
+  <div class="loading-screen">
+    <div class="progress-bar"></div>
+  </div>
+  <div class="content-container">
+    <div class="main-list-item mrz-scanner-button">MRZ Scanner</div>
+    <div class="main-list-item document-scanner-button">Document Scanner</div>
+    <div class="main-list-item ocr-button"> OCR </div>
+  </div>
+  <div class="controller scanbot-camera-controller">
+    <nav class="navbar navbar-dark">
+      <div class="navbar-brand mb-0 h3">
+        <span class="back-button">&#8249;</span>
+        Document Scanner
+      </div>
+      <div class="spacer"></div>
+      <div class="camera-button-container h3">
+        <span class="camera-swap-button"></span>
+        <span class="camera-switch-button"></span>
+      </div>
+    </nav>
+    <div id="scanbot-camera-container" class="view-controller-container">
+      <div class="web-sdk-progress-bar"></div>
+    </div>
+    <div class="action-bar">
+      <div class="action-bar-button page-count-indicator">0 PAGES</div>
+      <div class="align-right-button">
+        <button class="action-bar-button detection-done-button">DONE</button>
+      </div>
+    </div>
+  </div>
+  <div class="controller detection-results-controller">
+    <nav class="navbar navbar-dark">
+      <div class="navbar-brand mb-0 h3">
+        <span class="back-button">&#8249;</span>Detection Results
+      </div>
+    </nav>
+    <div class="view-controller-container detection-results-container"></div>
+    <div class="action-bar detection-results-action-bar">
+      <button class="action-bar-button pdf-button">SAVE PDF</button>
+      <button class="action-bar-button tiff-button">SAVE TIFF</button>
+    </div>
+  </div>
+  <div class="controller ocr-controller">
+    <nav class="navbar navbar-dark">
+      <div class="navbar-brand mb-0 h3">
+        <span class="back-button">&#8249;</span>OCR
+      </div>
+    </nav>
+    <div class="text-center" style="margin: 5px;">
+      <input type="text" class="ocr-url-input" placeholder="Input URL ..." />
+      <button class="btn btn-primary ocr-scanner-btn" >OK</button>
+    </div>
+    <div class="row">
+      <div class="view-ocr-container ocr-results-container"></div>
+      <div class="ocr-result-image" style="position: relative;"> </div>
+    </div>
+  </div>
+  <div class="controller mrz-scanner-controller">
+    <nav class="navbar navbar-dark">
+      <div class="navbar-brand mb-0 h3">
+        <span class="back-button">&#8249;</span>
+        MRZ Scanner
+      </div>
+      <div class="spacer"></div>
+      <div class="camera-button-container h3">
+        <span id = "mrz-scanner-stop" class="camera-swap-button">&#8741</span>
+        <span class="camera-switch-button"></span>
+      </div>
+    </nav>
+    <div class="row" style>
+      <div id="mrz-scanner-container" class="view-controller-container col-md-9">
+        <div class="web-sdk-progress-bar"></div>
+      </div>
+      <div class="row col-md-3" >
+        <textarea id="mrz-textarea" rows="20" cols="25" readonly  ></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
+    integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
+    crossorigin="anonymous"></script>
+
+  <script src="wasm/ScanbotSDK.min.js"></script>
+  <script src="js/lib/toastify.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/view-utils.js"></script>
+  <script src="main.js"></script>
+
+  <div class="version-info"></div>
+</body>
+</html>
