@@ -16,6 +16,7 @@ window.onload = async () => {
     e
   ) => {
     Utils.getElementByClassName("scanbot-camera-controller").style.display = "block";
+    Utils.getElementByClassName('content-container').style.display = 'none';
     const config = {
       containerId: Config.scannerContainerId(),
       acceptedAngleScore: 60,
@@ -48,6 +49,7 @@ window.onload = async () => {
       console.log(e.name + ': ' + e.message);
       alert(e.name + ': ' + e.message);
       Utils.getElementByClassName("scanbot-camera-controller").style.display = "none";
+      Utils.getElementByClassName('content-container').style.display = 'display';
     }
   };
   Utils.getElementByClassName("mrz-scanner-button").onclick = async (e) => {
@@ -71,8 +73,41 @@ window.onload = async () => {
   Utils.getElementByClassName("ocr-button").onclick = async (e) => {
     Utils.getElementByClassName('ocr-controller').style.display = "block";
     Utils.getElementByClassName("content-container").style.display = "none";
-
   }
+  Utils.getElementByClassName('url-back-button').onclick = async (e) =>{
+    Utils.getElementByClassName('url-controller').style.display = 'none';
+    Utils.getElementByClassName('scanbot-camera-controller').style.display = 'block';
+    Utils.getElementByClassName("url-ocr-container").innerHTML = '';
+    Utils.getElementByClassName("url-result-image").innerHTML = '';
+    const config = {
+      containerId: Config.scannerContainerId(),
+      acceptedAngleScore: 60,
+      acceptedSizeScore: 60,
+      autoCaptureSensitivity: 0.66,
+      autoCaptureEnabled: true,
+      ignoreBadAspectRatio: false,
+      onDocumentDetected: onDocumentDetected,
+      onError: onScannerError,
+      text: {
+        hint: {
+          OK: "Capturing your document...",
+          OK_SmallSize: "The document is too small. Try moving closer.",
+          OK_BadAngles:
+            "This is a bad camera angle. Hold the device straight over the document.",
+          OK_BadAspectRatio:
+            "Rotate the device sideways, so that the document fits better into the screen.",
+          OK_OffCenter: "Try holding the device at the center of the document.",
+          Error_NothingDetected:
+            "Please hold the device over a document to start scanning.",
+          Error_Brightness: "It is too dark. Try turning on a light.",
+          Error_Noise: "Please move the document to a clear surface.",
+        },
+      },
+      preferredCamera: 'camera2 0, facing back'
+    };
+    documentScanner = await scanbotSDK.createDocumentScanner(config);
+  }
+
   const backButtons = document.getElementsByClassName("back-button");
   for (let i = 0; i < backButtons.length; i++) {
     const button = backButtons[i];
@@ -86,6 +121,11 @@ window.onload = async () => {
         mrzScanner.dispose();
         mrzScanner = undefined;
       }
+      else if(controller.includes("scanbot-camera-controller")) {
+        documentScanner.dispose() ;
+        documentScanner = undefined ;
+      }
+
     };
   }
   async function reloadDetectionResults() {
@@ -180,8 +220,29 @@ window.onload = async () => {
 };
 
 async function onDocumentDetected(e) {
+  documentScanner.dispose(); 
+  Utils.getElementByClassName('scanbot-camera-controller').style.display = 'none';
+  Utils.getElementByClassName('url-controller').style.display = 'block';
   results.push(e);
   ViewUtils.flash();
+  const imageUrl = await scanbotSDK.toDataUrl(Utils.imageToDisplay(e));
+  let url = imageUrl ;
+  const ocr = await scanbotSDK.createOcrEngine(["eng", "deu"]);
+  const result = await ocr.recognizeURL(url);
+  let str = "", rect = Utils.getElementByClassName('url-ocr-container').getBoundingClientRect();
+  let hei = 90;
+  let wid = Utils.getElementByClassName("url-controller").getBoundingClientRect().width / 2;
+  result.forEach((obj) => {
+    if (obj.confidence > OCR_CONFIDENCE_LIMIT) {
+      str += "<div style='position:absolute; top: " +
+        (obj.boundingBox.y + hei) + "px; left:" + obj.boundingBox.x + "px'>" + obj.text + "</div>"
+    }
+  })
+  Utils.getElementByClassName("url-ocr-container").innerHTML = str;
+  str = "<img src ='" + url + "' style = 'position:absolute; left:" + wid + "px; top:" + hei +"px '/>"
+  Utils.getElementByClassName("url-result-image").innerHTML = str;
+  await ocr.release();
+
   Utils.getElementByClassName("page-count-indicator").innerHTML =
     results.length + " PAGES";
 }

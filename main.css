@@ -59,6 +59,12 @@
   padding-left: 20px;
   font-size: 20px;
 }
+.url-back-button {
+  display: inline-block;
+  width: 40px;
+  padding-left: 20px;
+  font-size: 20px;
+}
 
 .content-container {
   display: flex;
