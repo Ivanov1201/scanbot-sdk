@@ -128,6 +128,7 @@ window.onload = async () => {
 
     };
   }
+
   async function reloadDetectionResults() {
     const container = Utils.getElementByClassName("detection-results-container");
     container.innerHTML = await Utils.renderDetectionResults();
@@ -202,18 +203,38 @@ window.onload = async () => {
     const ocr = await scanbotSDK.createOcrEngine(["eng", "deu"]);
     const result = await ocr.recognizeURL(url);
     let str = "", rect = Utils.getElementByClassName("ocr-url-input").getBoundingClientRect();
+    let capture_max_width = 0;
+    for(var i = 0; i < result.length; i ++)
+    {
+      capture_max_width = Math.max(capture_max_width, result[i].boundingBox.x + result[i].boundingBox.width);
+    }
 
     let hei = rect.y + rect.height + 10;
     let wid = Utils.getElementByClassName("ocr-controller").getBoundingClientRect().width / 2;
-    result.forEach((obj) => {
-      if (obj.confidence > OCR_CONFIDENCE_LIMIT) {
-        str += "<div style='position:absolute; top: " +
-          (obj.boundingBox.y + hei) + "px; left:" + obj.boundingBox.x + "px'>" + obj.text + "</div>"
-      }
-    })
-    Utils.getElementByClassName("ocr-results-container").innerHTML = str;
-    str = "<img src ='" + url + "' style = 'position:absolute; left:" + wid + "px'/>"
-    Utils.getElementByClassName("ocr-result-image").innerHTML = str;
+    if(wid > capture_max_width){
+      result.forEach((obj) => {
+        if (obj.confidence > OCR_CONFIDENCE_LIMIT) {
+          str += "<div style='position:absolute; top: " +
+            (obj.boundingBox.y + hei) + "px; left:" + obj.boundingBox.x + "px'>" + obj.text + "</div>"
+        }
+      })
+      Utils.getElementByClassName("ocr-results-container").innerHTML = str;
+      str = "<img src ='" + url + "' style = 'position:absolute; left:" + wid + "px; top:"+hei + "px;'/>"
+      Utils.getElementByClassName("ocr-result-image").innerHTML = str;
+    } else {
+      let leftMargin = Math.max((wid*2-capture_max_width)/2 , 10);
+      result.forEach((obj) => {
+         
+        if (obj.confidence > OCR_CONFIDENCE_LIMIT) {
+          str += "<div style='position:absolute; top: " +
+            (obj.boundingBox.y + hei) + "px; left:" + (obj.boundingBox.x + leftMargin)+ "px'>" + obj.text + "</div>";
+        }
+      })
+      Utils.getElementByClassName("ocr-results-container").innerHTML = str;
+      str = "<img src ='" + url + "' style = 'position:absolute; left:" + leftMargin + "px; top:"+ 500 + "px'/>";
+      Utils.getElementByClassName("ocr-result-image").innerHTML = str;
+    }
+
     await ocr.release();
   }
   ViewUtils.hideLoading();
@@ -229,20 +250,40 @@ async function onDocumentDetected(e) {
   let url = imageUrl ;
   const ocr = await scanbotSDK.createOcrEngine(["eng", "deu"]);
   const result = await ocr.recognizeURL(url);
+  let capture_max_width = 0;
+  for(var i = 0; i < result.length; i ++)
+  {
+    capture_max_width = Math.max(capture_max_width, result[i].boundingBox.x + result[i].boundingBox.width);
+  }
+
+  console.log(result);
   let str = "", rect = Utils.getElementByClassName('url-ocr-container').getBoundingClientRect();
   let hei = 90;
   let wid = Utils.getElementByClassName("url-controller").getBoundingClientRect().width / 2;
-  result.forEach((obj) => {
-    if (obj.confidence > OCR_CONFIDENCE_LIMIT) {
-      str += "<div style='position:absolute; top: " +
-        (obj.boundingBox.y + hei) + "px; left:" + obj.boundingBox.x + "px'>" + obj.text + "</div>"
-    }
-  })
-  Utils.getElementByClassName("url-ocr-container").innerHTML = str;
-  str = "<img src ='" + url + "' style = 'position:absolute; left:" + wid + "px; top:" + hei +"px '/>"
-  Utils.getElementByClassName("url-result-image").innerHTML = str;
+  if(wid > capture_max_width){
+    result.forEach((obj) => {
+      if (obj.confidence > OCR_CONFIDENCE_LIMIT) {
+        str += "<div style='position:absolute; top: " +
+          (obj.boundingBox.y + hei) + "px; left:" + obj.boundingBox.x + "px'>" + obj.text + "</div>"
+      }
+    })
+    Utils.getElementByClassName("url-ocr-container").innerHTML = str;
+    str = "<img src ='" + url + "' style = 'position:absolute; left:" + wid + "px; top :"+hei+"px;'/>"
+    Utils.getElementByClassName("url-result-image").innerHTML = str;
+  } else {
+    let leftMargin = Math.max((wid*2-capture_max_width)/2 , 10);
+    result.forEach((obj) => {
+       
+      if (obj.confidence > OCR_CONFIDENCE_LIMIT) {
+        str += "<div style='position:absolute; top: " +
+          (obj.boundingBox.y + hei) + "px; left:" + (obj.boundingBox.x + leftMargin)+ "px'>" + obj.text + "</div>";
+      }
+    })
+    Utils.getElementByClassName("url-ocr-container").innerHTML = str;
+    str = "<img src ='" + url + "' style = 'position:absolute; left:" + leftMargin + "px; top:"+ 500 + "px'/>";
+    Utils.getElementByClassName("url-result-image").innerHTML = str;
+  }
   await ocr.release();
-
   Utils.getElementByClassName("page-count-indicator").innerHTML =
     results.length + " PAGES";
 }
